@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        input, button {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div class="container">
+        <h2>Create Booking</h2>
+        <input type="text" id="source" placeholder="Source">
+        <input type="text" id="destination" placeholder="Destination">
+        <input type="number" id="fare" placeholder="Fare">
+        <button onclick="createBooking()">Create Booking</button>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        let token = '';
+        let socket;
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            token = data.token;
+            alert('Logged in successfully');
+
+            // Initialize socket connection
+            socket = io('http://localhost:3000');
+
+            // Listen for booking confirmation
+            socket.on('bookingConfirmed', (data) => {
+                alert(`Booking confirmed! Booking ID: ${data.bookingId}, Driver ID: ${data.driverId}`);
+            });
+        }
+
+        async function createBooking() {
+            const source = document.getElementById('source').value;
+            const destination = document.getElementById('destination').value;
+            const fare = document.getElementById('fare').value;
+
+            const response = await fetch('http://localhost:3000/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ source, destination, fare })
+            });
+
+            const data = await response.json();
+            alert('Booking created: ' + JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
