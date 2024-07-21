@@ -1,6 +1,7 @@
 const { redisClient } = require('../utils/redisClient');
 const User = require('../models/user');
 const driverRepository = require('../repositories/driverRepository');
+const locationService = require('../services/locationService');
 
 const updateLocation = async (driverId, { latitude, longitude }) => {
     const lat = parseFloat(latitude);
@@ -14,14 +15,8 @@ const updateLocation = async (driverId, { latitude, longitude }) => {
   
     // Update driver's location in Redis
     try {
-        const res = await redisClient.sendCommand([
-            'GEOADD',
-            'drivers',
-            lat.toString(),
-            lon.toString(),
-            driverId.toString()
-          ]);
-          console.log(res);
+        const res = await locationService.addDriverLocation(driverId, lat, lon);
+        console.log(res);
     } catch(error) {
         console.log(error);
     }

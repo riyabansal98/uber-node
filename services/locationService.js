@@ -27,14 +27,19 @@ class locationService {
     return nearbyDrivers;
   }
 
-  async addDriverLocation(driverId, longitude, latitude) {
-    await redisClient.sendCommand([
-      'GEOADD',
-      'drivers',
-      longitude.toString(),
-      latitude.toString(),
-      driverId
-    ]);
+  async addDriverLocation(driverId, latitude, longitude) {
+    try {
+      await redisClient.sendCommand([
+        'GEOADD',
+        'drivers',
+        latitude.toString(),
+        longitude.toString(),
+        driverId.toString()
+      ]);
+    } catch(error) {
+      console.log("Cannot add to redis", error)
+    }
+    
   }
 
   async removeDriverLocation(driverId) {

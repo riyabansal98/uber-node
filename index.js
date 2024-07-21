@@ -9,6 +9,7 @@ const driverRoutes = require('./routes/driverRoutes');
 const passengerRoutes = require('./routes/passengerRoutes');
 const { redisClient } = require('./utils/redisClient');
 const mongoose = require('mongoose');
+const locationService = require('./services/locationService');
 
 
 dotenv.config();
@@ -49,15 +50,14 @@ io.on('connection', (socket) => {
     console.log('A user connected');
   
     socket.on('registerDriver', async (driverId) => {
-      const response = await redisClient.set(`driver:${driverId}`, socket.id);
-      console.log("set driver socket", response);
+      await locationService.setDriverSocket(driverId, socket.id);
+      console.log("set driver socket");
     });
 
-   
   
     socket.on('disconnect', async () => {
       console.log('A user disconnected');
-      const driverId = await redisClient.get(`driver:${socket.id}`);
+      const driverId = await locationService.getDriverSocket(`driver:${socket.id}`);
       if (driverId) {
         await redisClient.del(`driver:${driverId}`);
       }
