@@ -32,7 +32,6 @@
         <h2>Create Booking</h2>
         <input type="text" id="source" placeholder="Source">
         <input type="text" id="destination" placeholder="Destination">
-        <input type="number" id="fare" placeholder="Fare">
         <button onclick="createBooking()">Create Booking</button>
     </div>
 
@@ -69,7 +68,6 @@
         async function createBooking() {
             const source = document.getElementById('source').value;
             const destination = document.getElementById('destination').value;
-            const fare = document.getElementById('fare').value;
 
             const response = await fetch('http://localhost:3000/api/bookings', {
                 method: 'POST',
@@ -77,7 +75,7 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ source, destination, fare })
+                body: JSON.stringify({ source, destination })
             });
 
             const data = await response.json();

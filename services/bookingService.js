@@ -1,10 +1,9 @@
-const { redisClient } = require('../utils/redisClient');
 const Booking = require('../models/booking');
 const locationService = require('./locationService');
+const bookingRepository = require('../repositories/bookingRepository');
 
-const createBooking = async ({ passengerId, source, destination, fare }) => {
-  const booking = new Booking({ passenger: passengerId, source, destination, fare });
-  await booking.save();
+const createBooking = async ({ passengerId, source, destination }) => {
+  const booking = bookingRepository.createBooking({ passenger: passengerId, source, destination });
   return booking;
 };
 
@@ -19,7 +18,6 @@ const findNearbyDrivers = async (location, radius = 5) => {
     throw new Error('Invalid coordinates or radius');
   }
 
-  // Use the correct Redis geospatial command
   const nearbyDrivers = await locationService.findNearbyDrivers(longitude, latitude, radiusKm);
 
   return nearbyDrivers;
@@ -39,12 +37,5 @@ const getBookingsByUser = async (userId) => {
     return Booking.find({ passenger: userId });
   };
   
-const provideFeedback = async (passengerId, bookingId, rating, feedback) => {
-    const booking = await Booking.findOne({ _id: bookingId, passenger: passengerId });
-    if (!booking) throw new Error('Booking not found');
-    booking.rating = rating;
-    booking.feedback = feedback;
-    await booking.save();
-};
 
-module.exports = { createBooking, findNearbyDrivers, assignDriver,  };
+module.exports = { createBooking, findNearbyDrivers, assignDriver };
