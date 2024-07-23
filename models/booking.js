@@ -19,6 +19,7 @@ const bookingSchema = new mongoose.Schema({
         type: Number
     }
   },
+  fare: Number,
   status: { type: String, enum: ['pending', 'confirmed', 'completed'], default: 'pending' },
   rating: Number,
   feedback: String

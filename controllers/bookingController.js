@@ -12,7 +12,7 @@ const createBooking = (io) => async (req, res) => {
     for (const driver of nearbyDrivers) {
         const driverSocketId = await locationService.getDriverSocket(driver[0]);
         if (driverSocketId) {
-          io.to(driverSocketId).emit('newBooking', { bookingId: booking._id, source, destination });
+          io.to(driverSocketId).emit('newBooking', { bookingId: booking._id, source, destination, fare: booking.fare });
         }
     }
 
