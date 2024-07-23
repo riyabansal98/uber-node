@@ -1,7 +1,6 @@
-const { redisClient } = require('../utils/redisClient');
-const User = require('../models/user');
 const driverRepository = require('../repositories/driverRepository');
 const locationService = require('../services/locationService');
+const Booking = require('../models/booking');
 
 const updateLocation = async (driverId, { latitude, longitude }) => {
     const lat = parseFloat(latitude);
@@ -29,4 +28,9 @@ const updateLocation = async (driverId, { latitude, longitude }) => {
     });
 };
 
-module.exports = { updateLocation };
+const getDriverBookings = async (driverId) => {
+  const driverBookings = Booking.find({ driver: driverId });
+  return driverBookings;
+};
+
+module.exports = { updateLocation, getDriverBookings };

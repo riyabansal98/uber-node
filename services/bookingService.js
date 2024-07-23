@@ -33,9 +33,6 @@ const assignDriver = async (bookingId, driverId) => {
   return booking;
 };
 
-const getBookingsByUser = async (userId) => {
-    return Booking.find({ passenger: userId });
-  };
-  
+
 
 module.exports = { createBooking, findNearbyDrivers, assignDriver };

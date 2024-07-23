@@ -1,9 +1,8 @@
 const driverService = require('../services/driverService');
-const bookingRepository = require('../repositories/bookingRepository');
 
 const getDriverBookings = async (req, res) => {
   try {
-    const bookings = await bookingRepository.getBookingsByUser(req.user._id);
+    const bookings = await driverService.getDriverBookings(req.user._id);
     res.send(bookings);
   } catch (error) {
     res.status(400).send(error.message);

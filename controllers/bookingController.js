@@ -1,5 +1,4 @@
 const bookingService = require('../services/bookingService');
-const bookingRepository = require('../repositories/bookingRepository');
 const { io } = require('../index');
 const locationService = require('../services/locationService');
 
@@ -34,13 +33,5 @@ const confirmBooking = (io) => async (req, res) => {
   }
 };
 
-const getBookings = async (req, res) => {
-  try {
-    const bookings = await bookingRepository.getBookingsByUser(req.user._id);
-    res.send(bookings);
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-};
 
-module.exports = { createBooking, confirmBooking, getBookings };
+module.exports = { createBooking, confirmBooking };
