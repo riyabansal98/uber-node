@@ -3,7 +3,7 @@ const driverService = require('../services/driverService');
 const getDriverBookings = async (req, res) => {
   try {
     const bookings = await driverService.getDriverBookings(req.user._id);
-    res.send(bookings);
+    res.status(201).send({data:bookings, success: true, error: null, message: "successfully retreived driver bookings"});
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -23,7 +23,8 @@ const updateLocation = async (req, res) => {
       }
   
       await driverService.updateLocation(req.user._id, { latitude, longitude });
-      res.send({ message: 'Location updated successfully' });
+      res.status(201).send({ success: true, error: null, message: "Location updated successfully"});
+      
     } catch (error) {
       res.status(400).send({ error: error.message });
     }

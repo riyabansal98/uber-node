@@ -1,4 +1,5 @@
 const Booking = require('../models/booking');
+const { findOne } = require('../models/user');
 
 const createBooking = async (bookingData) => {
   const booking = new Booking(bookingData);
@@ -27,4 +28,8 @@ const updateBookingStatus = async (bookingId, driverId, status) => {
   );
 };
 
-module.exports = { createBooking, findBookingById, findBookingsByUser, updateBookingStatus };
+const findBooking = async (criteria) => {
+  return await Booking.findOne(criteria);
+};
+
+module.exports = { createBooking, findBookingById, findBookingsByUser, updateBookingStatus, findBooking };

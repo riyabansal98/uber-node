@@ -1,6 +1,5 @@
 const driverRepository = require('../repositories/driverRepository');
 const locationService = require('../services/locationService');
-const Booking = require('../models/booking');
 
 const updateLocation = async (driverId, { latitude, longitude }) => {
     const lat = parseFloat(latitude);
@@ -29,7 +28,7 @@ const updateLocation = async (driverId, { latitude, longitude }) => {
 };
 
 const getDriverBookings = async (driverId) => {
-  const driverBookings = Booking.find({ driver: driverId });
+  const driverBookings = driverRepository.findDriverById(driverId);
   return driverBookings;
 };
 

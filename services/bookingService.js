@@ -1,4 +1,3 @@
-const Booking = require('../models/booking');
 const locationService = require('./locationService');
 const bookingRepository = require('../repositories/bookingRepository');
 
@@ -23,12 +22,9 @@ const findNearbyDrivers = async (location, radius = 5) => {
   return nearbyDrivers;
 };
 
+
 const assignDriver = async (bookingId, driverId) => {
-  const booking = await Booking.findOneAndUpdate(
-    { _id: bookingId, status: 'pending' },
-    { driver: driverId, status: 'confirmed' },
-    { new: true }
-  );
+  const booking = await bookingRepository.updateBookingStatus(bookingId, driverId, 'confirmed');
   if (!booking) throw new Error('Booking already confirmed or does not exist');
   return booking;
 };

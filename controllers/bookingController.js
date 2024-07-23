@@ -16,7 +16,7 @@ const createBooking = (io) => async (req, res) => {
         }
     }
 
-    res.status(201).send(booking);
+    res.status(201).send({data:booking, success: true, error: null, message: "successfully created booking"});
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -27,7 +27,8 @@ const confirmBooking = (io) => async (req, res) => {
     const { bookingId } = req.body;
     const booking = await bookingService.assignDriver(bookingId, req.user._id);
     io.emit('rideConfirmed', { bookingId, driverId: req.user._id });
-    res.send(booking);
+    res.status(201).send({data:booking, success: true, error: null, message: "successfully confirmed booking"});
+
   } catch (error) {
     res.status(400).send(error.message);
   }
