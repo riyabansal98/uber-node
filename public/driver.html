@@ -18,6 +18,11 @@
             padding: 10px;
             width: 300px;
         }
+        .booking-request {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -28,18 +33,13 @@
         <button onclick="login()">Login</button>
     </div>
 
-    <div class="container">
-        <h2>Driver Details</h2>
-        <button onclick="getDriverDetails()">Get Driver Details</button>
-        <pre id="driverDetailsOutput"></pre>
-    </div>
 
     <div class="container">
         <h2>Booking Requests</h2>
-        <pre id="bookingRequestsOutput"></pre>
+        <div id="bookingRequestsOutput"></div>
     </div>
 
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         let token = '';
         let socket;
@@ -48,6 +48,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            try {
             const response = await fetch('http://localhost:3000/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -56,44 +57,62 @@
                 body: JSON.stringify({ email, password })
             });
 
+                // Check if the response is OK (status code 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
             const data = await response.json();
-            token = data.token;
+            token = data.data.token; // Extract the token from the data object
             alert('Logged in successfully');
 
             // Initialize socket connection
             socket = io('http://localhost:3000');
 
             // Register driver with socket ID
-            socket.emit('registerDriver', data.user._id);
+            socket.emit('registerDriver', data.data.user._id);
 
             // Listen for new bookings
             socket.on('newBooking', (data) => {
                 const bookingRequestsOutput = document.getElementById('bookingRequestsOutput');
                 const bookingRequest = document.createElement('div');
+                bookingRequest.className = 'booking-request';
+                bookingRequest.id = `booking-${data.bookingId}`; // Add an ID for easier manipulation
                 bookingRequest.innerHTML = `
                     <p>Booking ID: ${data.bookingId}</p>
-                    <p>Source: ${data.source.latitude}</p>
-                    <p>Destination: ${data.source.longitude}</p>
+                    <p>Source: ${data.source.latitude}, ${data.source.longitude}</p>
+                    <p>Destination: ${data.destination.latitude}, ${data.destination.longitude}</p>
                     <p>Fare: ${data.fare}</p>
                     <button onclick="confirmBooking('${data.bookingId}')">Confirm Booking</button>
                 `;
                 bookingRequestsOutput.appendChild(bookingRequest);
             });
+
+                // Listen for booking removal
+                socket.on('removeBooking', (data) => {
+                    const bookingElement = document.getElementById(`booking-${data.bookingId}`);
+                    if (bookingElement) {
+                        bookingElement.remove();
+                    }
+                });
+
+                // Listen for booking confirmation
+                socket.on('rideConfirmed', (data) => {
+                    const bookingElement = document.getElementById(`booking-${data.bookingId}`);
+                    if (bookingElement) {
+                        bookingElement.remove();
+                        alert(`Booking ${data.bookingId} has been confirmed by you.`);
+                    }
+                });
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert('Login failed');
+            }
         }
 
-        async function getDriverDetails() {
-            const response = await fetch('http://localhost:3000/api/drivers/details', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            const data = await response.json();
-            document.getElementById('driverDetailsOutput').textContent = JSON.stringify(data, null, 2);
-        }
 
         async function confirmBooking(bookingId) {
+            try {
             const response = await fetch('http://localhost:3000/api/bookings/confirm', {
                 method: 'POST',
                 headers: {
@@ -103,8 +122,26 @@
                 body: JSON.stringify({ bookingId })
             });
 
-            const data = await response.json();
-            alert('Booking confirmed: ' + JSON.stringify(data));
+
+                // Check if the response is OK (status code 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(data);
+
+                alert('Booking confirmed: ' + JSON.stringify(data.data));
+
+                // Remove the booking request from the UI after confirmation
+                const bookingElement = document.getElementById(`booking-${bookingId}`);
+                if (bookingElement) {
+                    bookingElement.remove();
+                }
+            } catch (error) {
+                console.error('Error confirming booking:', error);
+                alert('Failed to confirm booking');
+            }
         }
     </script>
 </body>

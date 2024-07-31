@@ -49,6 +49,21 @@ class locationService {
       driverId
     ]);
   }
+
+  async storeNotifiedDrivers(bookingId, driverIds) {
+  
+    for (const driverId of driverIds) {
+      // Add each driverId to the set
+      const addedCount = await redisClient.sAdd(`notifiedDrivers:${bookingId}`, driverId);
+      console.log(`Added driver ${driverId} to the set for booking ${bookingId}, result: ${addedCount}`);
+    }
+  
+  }
+
+  async getNotifiedDrivers(bookingId) {
+    const nearbyDrivers = await redisClient.sMembers(`notifiedDrivers:${bookingId}`);
+    return nearbyDrivers;
+  }
 }
 
 module.exports = new locationService();
